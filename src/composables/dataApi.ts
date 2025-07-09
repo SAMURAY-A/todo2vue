@@ -14,7 +14,6 @@ export async function getTodos(limit = 20) {
     const res = await fetch(`${BASE_URL}?limit=${limit}`)
     return await res.json()
 }
-
 export async function updateTodo(id: number, data: { todo: string; completed: boolean }) {
     const res = await fetch(`${BASE_URL}/${id}`, {
         method: 'PUT',

@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
+import { Toaster, toast } from 'vue-sonner'
 import { Button } from '@/components/ui/button'
+import 'vue-sonner/style.css'
 import {
   Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,
 } from '@/components/ui/card'
@@ -25,17 +27,25 @@ const fetchTodos = async () => {
 }
 
 const handleSubmit = async () => {
-  if (!todoText.value || completedStatus.value === undefined) return alert('Maydonlar to‘ldirilishi kerak')
+  if (!todoText.value || completedStatus.value === undefined) {
+    toast.error('Maydonlar to‘ldirilishi kerak')
+    return
+  }
 
   const newTodo = await createTodo(todoText.value, 5, completedStatus.value === 'true')
   todos.value.unshift(newTodo)
   todoText.value = ''
   completedStatus.value = undefined
+
+  toast.success('Yangi todo yaratildi', {
+    description: new Date().toLocaleString(),
+  })
 }
 
 const handleDelete = async (id: number) => {
   await deleteTodo(id)
   todos.value = todos.value.filter(t => t.id !== id)
+  toast('Todo o‘chirildi', { description: `ID: ${id}` })
 }
 
 const handleUpdate = async (todo: any) => {
@@ -44,12 +54,14 @@ const handleUpdate = async (todo: any) => {
     completed: todo.completed,
   })
   Object.assign(todo, updated)
+  toast('Todo yangilandi', { description: todo.todo })
 }
 
 onMounted(fetchTodos)
 </script>
 
 <template>
+  <Toaster position="top-right" />
   <div class="flex flex-col items-center p-6 space-y-10">
     <!-- Form -->
     <Card class="w-[350px]">
@@ -80,7 +92,12 @@ onMounted(fetchTodos)
         </form>
       </CardContent>
       <CardFooter class="flex justify-between px-6 pb-6">
-        <Button variant="outline" @click="todoText = ''; completedStatus = undefined">Cancel</Button>
+        <Button
+            variant="outline"
+            @click="() => { todoText = ''; completedStatus = undefined }"
+        >
+          Cancel
+        </Button>
         <Button @click="handleSubmit">Deploy</Button>
       </CardFooter>
     </Card>
